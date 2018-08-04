@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 import subprocess
-
+import time
 ff = webdriver.Firefox()
 pal = []
 def pageNext():
@@ -113,16 +113,18 @@ def end_par(text):
 
 def google(p):
     navegate('https://translate.google.com/?hl=pt-Br')
-    source = parser_html(get_page_html())
-    ff.find_element_by_tag_name('text').send_keys('text')
-    sp = source.find_all('span',{'class':''}).text()
+    ff.find_element_by_tag_name('textarea').send_keys(p)
+    time.sleep(10)
+    try:
+        sp = ff.find_element_by_id('result_box').text
+    except:
+        sp = ff.find_element_by_id('result_box').text
     return sp
 
 url_p = "https://search.scielo.org/?q=Qu%C3%ADmica+org%C3%A2nica&lang=pt&count=15&from=1&output=site&sort=&format=summary&fb=&page=1&filter%5Bla%5D%5B%5D=pt&filter%5Bla%5D%5B%5D=en&q=Qu%C3%ADmica+industrial&lang=pt&page=1íde"
-
-
 if __name__ == '__main__':
     all_links = []
+    list_final = []
     navegate(url_p)
     while pageNext():
         for l in get_links():
@@ -135,4 +137,12 @@ if __name__ == '__main__':
     for i,l in enumerate(all_links):
         navegate(l)
         orgnize_list()
-        print(i,l,len(pal))
+        print(l,i,len(pal))
+
+    list_final[:] = exluir_repetidas()
+    dic = {}
+    print('palavra -----> tradução ----> ordem')
+    for w in list_final:
+        tr = google(w)
+        dic[w] = tr
+        print(w,dic[w],len(dic))
